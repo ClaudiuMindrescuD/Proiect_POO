@@ -1,0 +1,136 @@
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <conio.h>
+#include <time.h>
+
+using namespace std;
+
+void salveazaEvent(int zi, int luna, int an) {
+    ofstream file("Evenimente.txt", ios::app);
+    if (file.is_open())
+    {
+        file<<zi<<"/"<<luna<<"/"<<an<<endl;
+        file.close();
+        cout<<"Eveniment salvat!"<< endl;
+    }
+    else
+    {
+        cout<<"Evenimentul nu sa putut salva."<<endl;
+    }
+}
+
+void afiseazaEvenimente(int an)
+{
+    ifstream file("Evenimente.txt");
+    if (file.is_open())
+    {
+        string linie;
+        cout<<endl<<"Evenimente in "<<an<<":"<<endl;
+        while (getline(file, linie))
+        {
+            int zi, luna, AnActual;
+            sscanf(linie.c_str(),"%d/%d/%d",&zi,&luna,&AnActual);
+            if (AnActual == an)
+            {
+                cout<<zi<<"/"<<luna<<"/"<<AnActual<<endl;
+            }
+        }
+        file.close();
+    }
+    else
+    {
+        cout<<endl<<"Nu exista evenimente."<<endl;
+    }
+}
+
+void printCalendar(int an)
+{
+    int t[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
+    int lZile[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+    string listaLuni[] = {"Ianuarie","Februarie","Martie","Aprilie","Mai","Iunie","Iulie","August","Septembrie","Octombrie","Noiembrie","Decembrie"};
+    cout<<"--------------------------------"<<endl;
+    cout<<"           Calendar - "<<an<<endl;
+    cout<<"--------------------------------"<<endl<<endl;
+    int zile;
+    int curent;
+    int a = an - 1;
+    curent = (a + a / 4 - a / 100 + a / 400 + t[0]) % 7;
+    for (int i = 0; i < 12; i++)
+    {
+        if (i == 1)
+            if (an % 400 == 0 || (an % 4 == 0 && an % 100 != 0))
+                zile = 29;
+            else
+                zile = lZile[i];
+        else
+            zile = lZile[i];
+        cout<<endl<<"  -------------------------"<<listaLuni[i]<<"---------------------------"<<endl;
+        cout<<endl;
+        cout<<"     Luni   Marti   Miercuri  Joi   Vineri  Sambata  Duminica" <<endl;
+        int k;
+        for (k = 0; k < curent; k++)
+            cout << setw(8) << " ";
+        for (int j = 1; j <= zile; j++)
+        {
+            k++;
+            cout << setw(8) << j;
+            if (k > 6)
+            {
+                k = 0;
+                cout << endl;
+            }
+        }
+        if (k)
+            cout << endl;
+        curent = k;
+    }
+    return;
+}
+
+int main()
+{
+    system("cls");
+    time_t ttime = time(0);
+    tm *local_time = localtime(&ttime);
+    int an = 1900 + local_time->tm_year;
+    char option;
+    system("cls");
+    printCalendar(an);
+    do
+    {
+        cout<<endl<<endl;
+        cout<<"Optiuni: "<<endl;
+        cout<<"- d pentru anul urmator"<<endl;
+        cout<<"- a pentru anul antecedent"<<endl;
+        cout<<"- p pentru a adauga un eveniment"<<endl;
+        cout<<"- f pentru a afisa toate evenimentele din anul actual"<<endl;
+        cout<<"- e pentru iesire"<<endl;
+        option = getche();
+        switch(option)
+        {
+        case 'd':
+            an++;
+            system("cls");
+            printCalendar(an);
+            break;
+        case 'a':
+            an--;
+            system("cls");
+            printCalendar(an);
+            break;
+        case 'p': {
+                int zi, luna;
+                cout<<endl<< "Adauga ziua si luna evenimentului (DD MM): ";
+                cin>>zi>>luna;
+                salveazaEvent(zi, luna, an);
+                break;
+            }
+        case 'f':
+            afiseazaEvenimente(an);
+            break;
+        }
+    }
+    while(option!='e' && option!='E');
+    return 0;
+}
